@@ -1,9 +1,9 @@
-# ssh.yannickh.dev
+# ssh.redwan.dev
 
 ```
- __   __                _      _
+  __   __                _      _
  \ \ / /_ _ _ __  _ __ (_) ___| | __
-  \ V / _` | '_ \| '_ \| |/ __| |/ /
+  \ V / _? | '_ \| '_ \| |/ __| |/ /
    | | (_| | | | | | | | | (__|   <
    |_|\__,_|_| |_|_| |_|_|\___|_|\_\
 ```
@@ -11,7 +11,7 @@
 A personal portfolio served entirely over SSH. No browser needed -- just open a terminal and connect.
 
 ```bash
-ssh ssh.yannickh.dev
+ssh ssh.redwan.dev
 ```
 
 ## What is this?
@@ -54,7 +54,7 @@ src/
   main.rs       SSH server bootstrap and key generation
   app.rs        Application state (tabs, scroll, animation)
   handler.rs    SSH session management and keypress routing
-  ui.rs         Ratatui rendering for all tabs and layouts
+  ui.rs         Ratatui rendering for all layouts
   content.rs    Static portfolio data (bio, projects, skills, contacts)
   theme.rs      Centralized color and style definitions
   terminal.rs   Bridge between ratatui and SSH channel via mpsc
@@ -94,8 +94,8 @@ fly deploy
 
 ## Author
 
-**Yannick Herrero** -- Freelance developer based in France
+**Redwan Ahmmed** -- Robotics-Hardware Specialist (R&D) & Backend Developer
 
-- [yannickh.dev](https://yannickh.dev)
-- [GitHub](https://github.com/YannickHerrero)
-- [hello@yannickh.dev](mailto:hello@yannickh.dev)
+- [Medium](https://medium.com/@reahs302444)
+- [GitHub](https://github.com/redwan2003-bot)
+- [reahs302444@gmail.com](mailto:reahs302444@gmail.com)

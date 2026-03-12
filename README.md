@@ -14,7 +14,7 @@
 A personal portfolio served entirely over SSH. No browser needed -- just open a terminal and connect.
 
 ```bash
-ssh ssh.redwan.dev
+ssh ballast.proxy.rlwy.net -p 29436
 ```
 
 ## What is this?

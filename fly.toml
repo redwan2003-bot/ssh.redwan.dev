@@ -1,0 +1,17 @@
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+
+app = "ssh-yannickh-dev"
+primary_region = "cdg"
+
+[build]
+
+[env]
+  PORT = "22"
+
+# SSH is a raw TCP service, not HTTP
+[[services]]
+  internal_port = 22
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 22

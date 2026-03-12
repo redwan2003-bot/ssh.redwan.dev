@@ -1,0 +1,13 @@
+[package]
+name = "ssh-yannickh-dev"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+russh = { version = "0.57", features = ["aws-lc-rs"] }
+ratatui = "0.29"
+crossterm = "0.28"
+tokio = { version = "1", features = ["full"] }
+anyhow = "1"
+log = "0.4"
+env_logger = "0.11"

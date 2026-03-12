@@ -1,5 +1,6 @@
 # ssh.redwan.dev
 
+```
   _____          _                                _                                  _ 
  |  __ \        | |                         /\   | |                                | |
  | |__) |___  __| |_      ____ _ _ __      /  \  | |__  _ __ ___  _ __ ___   ___  __| |
@@ -8,6 +9,7 @@
  |_|  \_\___|\__,_| \_/\_/ \__,_|_| |_| /_/    \_\_| |_|_| |_| |_|_| |_| |_|\___|\__,_|
                                                                                        
                                                                                 
+```
 
 A personal portfolio served entirely over SSH. No browser needed -- just open a terminal and connect.
 

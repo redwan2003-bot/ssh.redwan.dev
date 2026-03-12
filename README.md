@@ -87,13 +87,31 @@ docker run -p 2222:22 ssh-portfolio
 ssh localhost -p 2222
 ```
 
+## Self-Hosting (Free)
+
+If you want to host this for free without a credit card, you can self-host it on your own machine using a TCP tunnel.
+
+### Option 1: Bore.pub (Easiest)
+1. Run the portfolio:
+   ```bash
+   docker run -d --name ssh-portfolio -e PORT=2222 -p 2222:2222 redwanahmmed-portfolio:latest
+   ```
+2. Start the tunnel:
+   ```bash
+   docker run -it --init --rm ekzhang/bore local 2222 --to bore.pub --local-host host.docker.internal
+   ```
+3. Connect using the port provided by Bore:
+   ```bash
+   ssh -p [PORT] bore.pub
+   ```
+
+### Option 2: Cloudflare Tunnel (Professional)
+If you own a domain, you can use Cloudflare Zero Trust to create a permanent tunnel.
+1. Use the provided `docker-compose.yml`.
+2. Set your `TUNNEL_TOKEN` in the environment.
+3. Connect via `cloudflared access`.
+
 ## Deployment
-
-The project is configured for [Fly.io](https://fly.io) deployment:
-
-```bash
-fly deploy
-```
 
 ## Author
 

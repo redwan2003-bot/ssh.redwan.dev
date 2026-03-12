@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  portfolio:
+    build: .
+    environment:
+      - PORT=2222
+    expose:
+      - "2222"
+    restart: always
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiNjJjY2JjODFkNDU2M2E4Mzk3YTU5MTQ0MjdlYjFkN2UiLCJ0IjoiM2ZmMjI2MzMtMmFjOC00Zjc4LWE1OWYtZjFhYmNlZWUwMzk4IiwicyI6IllqVTJPRE0xWlRFdFlqWTRPQzAwT1RNMExUZzVOemt0TVdRMlpERTBOekEwTVdVMiJ9
+    depends_on:
+      - portfolio
+    restart: always

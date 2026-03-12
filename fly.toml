@@ -1,6 +1,6 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 
-app = "ssh-yannickh-dev"
+app = "ssh-redwan-dev"
 primary_region = "cdg"
 
 [build]

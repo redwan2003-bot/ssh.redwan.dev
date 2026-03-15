@@ -2319,7 +2319,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ssh-yannickh-dev"
+name = "ssh-redwan-dev"
 version = "0.1.0"
 dependencies = [
  "anyhow",

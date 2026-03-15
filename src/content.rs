@@ -89,45 +89,45 @@ pub struct ProjectCategory {
 
 pub const PROJECT_CATEGORIES: &[ProjectCategory] = &[
     ProjectCategory {
-        name: "HardWare",
+        name: "IoT",
         projects: &[
             Project {
-                name: "Doku",
-                description: "iOS app for learning French through graded stories",
-                tech: "React Native, Expo, TypeScript",
-                url: "https://learnfrenchwithdoku.app",
+                name: "Air Mouse B.V.",
+                description: "Python and esp32 based air mouse",
+                tech: "Python, Flask, ESP32",
+                url: "https://github.com/redwan2003-bot/Air_Mouse_B.V.",
             },
             Project {
-                name: "kanidachi",
-                description: "WaniKani client for Android and iOS",
-                tech: "React Native, Expo, TypeScript",
-                url: "https://github.com/YannickHerrero/kanidachi",
+                name: "Voice-Assistant-Stellar-AI-Lander-Style",
+                description: "Ai voice assistant in stellar lander style as mini desk companion",
+                tech: "C++, ESP-IDF",
+                url: "https://github.com/redwan2003-bot/DIY-Voice-Assistant-Stellar-AI-Lander-Style",
             },
             Project {
-                name: "yomu",
-                description: "iOS Japanese reading assistant with offline dictionary and SRS",
-                tech: "React Native, TypeScript",
-                url: "https://github.com/YannickHerrero/Yomu",
+                name: "ESP32-GateWay",
+                description: "IoT Gateway for industrial automation",
+                tech: "C++, ESP-IDF",
+                url: "https://github.com/redwan2003-bot/Esp32-Gateway-IoT",
             },
         ],
     },
-    ProjectCategory {
-        name: "SoftWare",
-        projects: &[
-            Project {
-                name: "mira",
-                description: "Cross-platform streaming app for movies and TV shows",
-                tech: "React Native, TypeScript",
-                url: "https://github.com/YannickHerrero/mira",
-            },
-            Project {
-                name: "miru",
-                description: "Terminal-native anime streaming CLI with Anilist + Real-Debrid",
-                tech: "Rust",
-                url: "https://github.com/YannickHerrero/miru",
-            },
-        ],
-    },
+    //ProjectCategory {
+        //name: "SoftWare",
+        //projects: &[
+            //Project {
+            //    name: "mira",
+            //    description: "Cross-platform streaming app for movies and TV shows",
+            //    tech: "React Native, TypeScript",
+            //    url: "https://github.com/YannickHerrero/mira",
+            //},
+            //Project {
+            //    name: "miru",
+            //    description: "Terminal-native anime streaming CLI with Anilist + Real-Debrid",
+            //    tech: "Rust",
+            //    url: "https://github.com/YannickHerrero/miru",
+            //},
+       //],
+    //},
     ProjectCategory {
         name: "Terminal Fun",
         projects: &[
@@ -174,35 +174,35 @@ pub const PROJECT_CATEGORIES: &[ProjectCategory] = &[
             },
         ],
     },
-    ProjectCategory {
-        name: "Web & Config",
-        projects: &[
-            Project {
-                name: "yannickh.dev",
-                description: "Personal portfolio and project showcase",
-                tech: "Next.js, TypeScript, Vercel",
-                url: "https://yannickh.dev",
-            },
-            Project {
-                name: "ssh-yannickh.dev",
-                description: "This SSH portfolio you're looking at right now",
-                tech: "Rust, russh, ratatui, Fly.io",
-                url: "https://github.com/YannickHerrero/ssh-yannickh.dev",
-            },
-            Project {
-                name: "windot",
-                description: "Windows/WSL dotfiles with tiling WM and custom status bar",
-                tech: "JavaScript, PowerShell",
-                url: "https://github.com/YannickHerrero/windot",
-            },
-            Project {
-                name: "chocofi-config",
-                description: "ZMK firmware config for Corne/Chocofi split keyboard",
-                tech: "ZMK, Devicetree",
-                url: "https://github.com/YannickHerrero/chocofi-config",
-            },
-        ],
-    },
+    // ProjectCategory {
+    //     name: "Web & Config",
+    //     projects: &[
+    //         Project {
+    //             name: "yannickh.dev",
+    //             description: "Personal portfolio and project showcase",
+    //             tech: "Next.js, TypeScript, Vercel",
+    //             url: "https://yannickh.dev",
+    //         },
+    //         Project {
+    //             name: "ssh-yannickh.dev",
+    //             description: "This SSH portfolio you're looking at right now",
+    //             tech: "Rust, russh, ratatui, Fly.io",
+    //             url: "https://github.com/YannickHerrero/ssh-yannickh.dev",
+    //         },
+    //         Project {
+    //             name: "windot",
+    //             description: "Windows/WSL dotfiles with tiling WM and custom status bar",
+    //             tech: "JavaScript, PowerShell",
+    //             url: "https://github.com/YannickHerrero/windot",
+    //         },
+    //         Project {
+    //             name: "chocofi-config",
+    //             description: "ZMK firmware config for Corne/Chocofi split keyboard",
+    //             tech: "ZMK, Devicetree",
+    //             url: "https://github.com/YannickHerrero/chocofi-config",
+    //         },
+    //     ],
+    // },
 ];
 
 /// Flat count of all projects across categories.

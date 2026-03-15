@@ -1,4 +1,4 @@
-# ssh.redwan.dev
+ # ssh.redwan.dev
 
 ```
   _____          _                                _                                  _ 
@@ -14,7 +14,7 @@
 A personal portfolio served entirely over SSH. No browser needed -- just open a terminal and connect.
 
 ```bash
-ssh ballast.proxy.rlwy.net -p 29436
+ssh ssh-redwan-dev-production-23f6.up.railway.app -p 22
 ```
 
 ## What is this?
@@ -120,3 +120,4 @@ If you own a domain, you can use Cloudflare Zero Trust to create a permanent tun
 - [Medium](https://medium.com/@reahs302444)
 - [GitHub](https://github.com/redwan2003-bot)
 - [reahs302444@gmail.com](mailto:reahs302444@gmail.com)
+- []

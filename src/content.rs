@@ -128,52 +128,52 @@ pub const PROJECT_CATEGORIES: &[ProjectCategory] = &[
             //},
        //],
     //},
-    ProjectCategory {
-        name: "Terminal Fun",
-        projects: &[
-            Project {
-                name: "Solaris",
-                description: "Terminal idle game — harness the cosmos to generate energy",
-                tech: "Rust, ratatui",
-                url: "https://github.com/YannickHerrero/Solaris",
-            },
-            Project {
-                name: "Balatrust",
-                description: "A terminal-based Balatro clone",
-                tech: "Rust",
-                url: "https://github.com/YannickHerrero/Balatrust",
-            },
-            Project {
-                name: "kanitomo",
-                description: "Terminal mini-game collection with your pet crab companion",
-                tech: "Rust",
-                url: "https://github.com/YannickHerrero/kanitomo",
-            },
-        ],
-    },
-    ProjectCategory {
-        name: "Tools & Productivity",
-        projects: &[
-            Project {
-                name: "mtools",
-                description: "Unified toolkit for work management and developer utilities",
-                tech: "TypeScript",
-                url: "https://github.com/YannickHerrero/mtools",
-            },
-            Project {
-                name: "motionflow",
-                description: "Pipeline for generating short-form French educational videos",
-                tech: "TypeScript, AI",
-                url: "https://github.com/YannickHerrero/motionflow",
-            },
-            Project {
-                name: "life",
-                description: "Personal habit tracking for learning, nutrition, and sport",
-                tech: "TypeScript",
-                url: "https://github.com/YannickHerrero/life",
-            },
-        ],
-    },
+    // ProjectCategory {
+    //     name: "Terminal Fun",
+    //     projects: &[
+    //         Project {
+    //             name: "Solaris",
+    //             description: "Terminal idle game — harness the cosmos to generate energy",
+    //             tech: "Rust, ratatui",
+    //             url: "https://github.com/YannickHerrero/Solaris",
+    //         },
+    //         Project {
+    //             name: "Balatrust",
+    //             description: "A terminal-based Balatro clone",
+    //             tech: "Rust",
+    //             url: "https://github.com/YannickHerrero/Balatrust",
+    //         },
+    //         Project {
+    //             name: "kanitomo",
+    //             description: "Terminal mini-game collection with your pet crab companion",
+    //             tech: "Rust",
+    //             url: "https://github.com/YannickHerrero/kanitomo",
+    //         },
+    //     ],
+    // },
+    // ProjectCategory {
+    //     name: "Tools & Productivity",
+    //     projects: &[
+    //         Project {
+    //             name: "mtools",
+    //             description: "Unified toolkit for work management and developer utilities",
+    //             tech: "TypeScript",
+    //             url: "https://github.com/YannickHerrero/mtools",
+    //         },
+    //         Project {
+    //             name: "motionflow",
+    //             description: "Pipeline for generating short-form French educational videos",
+    //             tech: "TypeScript, AI",
+    //             url: "https://github.com/YannickHerrero/motionflow",
+    //         },
+    //         Project {
+    //             name: "life",
+    //             description: "Personal habit tracking for learning, nutrition, and sport",
+    //             tech: "TypeScript",
+    //             url: "https://github.com/YannickHerrero/life",
+    //         },
+    //     ],
+    // },
     // ProjectCategory {
     //     name: "Web & Config",
     //     projects: &[

@@ -4,6 +4,8 @@ services:
     build: .
     environment:
       - PORT=2222
+    ports:
+      - "2222:2222"
     expose:
       - "2222"
     restart: always

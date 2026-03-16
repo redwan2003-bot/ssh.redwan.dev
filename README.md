@@ -14,7 +14,7 @@
 A personal portfolio served entirely over SSH. No browser needed -- just open a terminal and connect.
 
 ```bash
-ssh ssh-redwan-dev-production-23f6.up.railway.app -p 22
+ssh shortline.proxy.rlwy.net -p 58128
 ```
 
 ## What is this?
@@ -110,6 +110,15 @@ If you own a domain, you can use Cloudflare Zero Trust to create a permanent tun
 1. Use the provided `docker-compose.yml`.
 2. Set your `TUNNEL_TOKEN` in the environment.
 3. Connect via `cloudflared access`.
+
+## Live Deployment
+
+**🔗 Connect to the live SSH portfolio:**
+```bash
+ssh shortline.proxy.rlwy.net -p 58128
+```
+
+The portfolio is deployed on Railway with custom industrial terminal styling and exit animations.
 
 ## Deployment
 

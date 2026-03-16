@@ -64,7 +64,7 @@ pub const ABOUT_LINES: &[&str] = &[
     "Previously, Redwan earned Bronze Honors in the",
     "International Astronomy & Astrophysics Competition (IAAC)",
     "and studying CSE at United International University",
-    "where he led research for the Mars Rover and",
+    "where he was research intern in the Electrical team for the Mars Rover and",
     "CanSat teams.",
     "",
     "His work sits at the intersection of",
@@ -276,9 +276,13 @@ pub const SKILLS: &[SkillGroup] = &[
         items: &["Docker", "Vercel", "GitHub Actions", "Linux", "Arch"],
     },
     SkillGroup {
-        name: "Other",
-        items: &["ZMK firmware", "Base16 theming", "WSL / Hyprland"],
+        name: "IoT",
+        items: &["Arduino", "ESP32", "ESP8266", "Pcb Design", "Raspberry Pi","STM32","PIC18F"],
     },
+    //SkillGroup {
+    //    name: "Other",
+    //    items: &["ZMK firmware", "Base16 theming", "WSL / Hyprland"],
+    //},
 ];
 
 // ── Contact ────────────────────────────────────────────────────

@@ -6,11 +6,11 @@ primary_region = "cdg"
 [build]
 
 [env]
-  PORT = "22"
+  PORT = "2222"
 
 # SSH is a raw TCP service, not HTTP
 [[services]]
-  internal_port = 22
+  internal_port = 2222
   protocol = "tcp"
 
   [[services.ports]]

@@ -80,6 +80,79 @@ impl AppServer {
             }
         });
     }
+
+    /// Send custom MOTD (Message of the Day)
+    async fn send_motd(&self, session: &mut Session, channel: Channel<Msg>) -> Result<(), anyhow::Error> {
+        let industrial_banner = r#"
+    ╔══════════════════════════════════════════════════════════════╗
+    ║                                                              ║
+    ║  ██████╗ ██████╗  ██████╗ ██╗  ██╗██╗   ██╗███████╗██████╗  ║
+    ║  ██╔══██╗██╔══██╗██╔═══██╗╚██╗██╔╝╚██╗ ██╔╝██╔════╝██╔══██╗ ║
+    ║  ██████╔╝██████╔╝██║   ██║ ╚███╔╝  ╚████╔╝ █████╗  ██████╔╝ ║
+    ║  ██╔═══╝ ██╔══██╗██║   ██║ ██╔██╗   ╚██╔╝  ██╔══╝  ██╔══██╗ ║
+    ║  ██║     ██║  ██║╚██████╔╝██╔╝ ██╗   ██║   ███████╗██║  ██║ ║
+    ║  ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝ ║
+    ║                                                              ║
+    ║              Redwan's Industrial Terminal                    ║
+    ║              Authorized Access Only                          ║
+    ║                                                              ║
+    ╚══════════════════════════════════════════════════════════════╝
+
+    System Status: ONLINE
+    Connection Type: SSH
+    Security Level: PUBLIC ACCESS
+    Last Login: {}
+    "#;
+
+        let timestamp = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC");
+        let motd = format!(
+            "{}\r\n{}Welcome to Redwan's SSH Portfolio{}\r\n{}\r\n",
+            industrial_banner,
+            "\x1b[1;36m", // Cyan bold
+            "\x1b[0m",    // Reset
+            "=".repeat(40)
+        );
+        
+        session.data(channel.id(), motd.into_bytes().into())?;
+        Ok(())
+    }
+
+    /// Show exit animation before disconnecting
+    async fn show_exit_animation(&self, session: &mut Session, channel_id: ChannelId) -> Result<(), anyhow::Error> {
+        let shutdown_sequence = r#"
+    ╔══════════════════════════════════════════════════════════════╗
+    ║                                                              ║
+    ║  ██████╗ ███████╗███╗   ██╗██████╗  ██████╗ ██╗   ██╗       ║
+    ║  ██╔══██╗██╔════╝████╗  ██║██╔══██╗██╔═══██╗╚██╗ ██╔╝       ║
+    ║  ██████╔╝█████╗  ██╔██╗ ██║██║  ██║██║   ██║ ╚████╔╝        ║
+    ║  ██╔══██╗██╔══╝  ██║╚██╗██║██║  ██║██║   ██║  ╚██╔╝         ║
+    ║  ██║  ██║███████╗██║ ╚████║██████╔╝╚██████╔╝   ██║          ║
+    ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝╚═════╝  ╚═════╝    ╚═╝          ║
+    ║                                                              ║
+    ║              System Shutdown Initiated                       ║
+    ║              Connection Terminating                          ║
+    ║                                                              ║
+    ╚══════════════════════════════════════════════════════════════╝
+
+    Logging out...
+    Session ended.
+    "#;
+
+        let exit_msg = format!(
+            "{}\r\n{}Disconnecting from Redwan's SSH Portfolio{}\r\n{}\r\n",
+            shutdown_sequence,
+            "\x1b[1;31m", // Red bold for shutdown
+            "\x1b[0m",    // Reset
+            "=".repeat(40)
+        );
+        
+        session.data(channel_id, exit_msg.into_bytes().into())?;
+        
+        // Small delay to let the animation display
+        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+        
+        Ok(())
+    }
 }
 
 impl Server for AppServer {
@@ -131,6 +204,9 @@ impl Handler for AppServer {
         let app = App::new();
 
         self.clients.lock().await.insert(self.id, (terminal, app));
+
+        // Send custom MOTD (Message of the Day)
+        self.send_motd(session, channel).await?;
 
         Ok(true)
     }
@@ -231,6 +307,8 @@ impl Handler for AppServer {
                     match data {
                         // 'q' or Ctrl-C — quit
                         b"q" | b"Q" | b"\x03" => {
+                            // Show exit animation before quitting
+                            self.show_exit_animation(session, channel).await?;
                             app.quit();
                             should_quit = true;
                         }

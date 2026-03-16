@@ -3,8 +3,8 @@ FROM rust:1.88-bookworm AS builder
 
 WORKDIR /app
 
-# Install cmake for aws-lc-sys
-RUN apt-get update && apt-get install -y cmake && rm -rf /var/lib/apt/lists/*
+# Install cmake for aws-lc-sys and git for potential dependencies
+RUN apt-get update && apt-get install -y cmake git && rm -rf /var/lib/apt/lists/*
 
 # Cache dependencies by building them first
 COPY Cargo.toml Cargo.lock ./
@@ -18,11 +18,24 @@ RUN touch src/main.rs && cargo build --release
 # ── Runtime stage ────────────────────────────────────
 FROM debian:bookworm-slim
 
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+# Install necessary packages for Railway environment
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user for security
+RUN groupadd -r portfolio && useradd -r -g portfolio portfolio
 
 COPY --from=builder /app/target/release/ssh-redwan-dev /usr/local/bin/ssh-portfolio
 
-ENV PORT=22
-EXPOSE 22
+# Set proper permissions
+RUN chmod +x /usr/local/bin/ssh-portfolio
+
+# Use port 2222 to match the Rust app's default, but allow override via PORT env var
+ENV PORT=2222
+EXPOSE 2222
+
+# Run as non-root user
+USER portfolio
 
 CMD ["ssh-portfolio"]

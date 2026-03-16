@@ -17,6 +17,7 @@ A personal portfolio served entirely over SSH. No browser needed -- just open a 
 ssh-keygen -R "[shortline.proxy.rlwy.net]:58128"
 ssh shortline.proxy.rlwy.net -p 58128
 ```
+permit the command to execute by typing 'yes'.
 
 ## What is this?
 

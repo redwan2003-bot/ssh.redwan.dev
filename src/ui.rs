@@ -792,7 +792,7 @@ fn render_snake_fullscreen(app: &App, f: &mut Frame, area: Rect) {
     let food_y = game_inner.y + (game.food.y as u16);
     if food_x + 1 < game_inner.x + game_inner.width && food_y < game_inner.y + game_inner.height {
         f.render_widget(
-            Paragraph::new(Span::styled("◆ ", Style::default().fg(theme::SNAKE_FOOD))),
+            Paragraph::new(Span::styled("◆ ", theme::SNAKE_FOOD)),
             Rect { x: food_x, y: food_y, width: 2, height: 1 },
         );
     }

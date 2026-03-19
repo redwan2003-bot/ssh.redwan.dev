@@ -66,6 +66,7 @@ impl SnakeGame {
     }
 
     /// Simple LCG pseudo-random number generator (no external crate needed).
+    fn next_rand(&mut self) -> u32 {
         self.seed = self.seed.wrapping_mul(1664525).wrapping_add(1013904223);
         self.seed
     }

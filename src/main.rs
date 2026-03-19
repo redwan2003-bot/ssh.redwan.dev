@@ -1,5 +1,6 @@
 mod app;
 mod content;
+mod game;
 mod handler;
 mod terminal;
 mod theme;

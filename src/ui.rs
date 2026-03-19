@@ -3,7 +3,7 @@ use ratatui::text::{Line, Span, Text};
 use ratatui::widgets::{Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap};
 use ratatui::Frame;
 
-use crate::app::{App, IntroPhase, Tab};
+use crate::app::{App, AppMode, IntroPhase, OutputStyle, Tab};
 use crate::content;
 use crate::theme;
 
@@ -27,11 +27,22 @@ pub fn render(app: &App, f: &mut Frame) {
         return;
     }
 
+    // Check if snake game is active — render it full-screen as a modal
+    if app.mode == AppMode::SnakeGame {
+        render_snake_fullscreen(app, f, area);
+        return;
+    }
+
+    // Check if typewriter output is active — render it as a modal
+    if app.mode == AppMode::TypewriterOutput {
+        render_typewriter_output(app, f, area);
+        return;
+    }
+
     let p_width = portrait_width();
     let b_width = banner_width() as u16;
     
     // Switch to vertical if the terminal is too narrow for both portrait and a decent content area
-    // A standard terminal is 80-120 chars. We try to be horizontal if >= 110
     let min_horizontal_width = 110;
 
     if area.width < min_horizontal_width || area.height < 30 {
@@ -41,7 +52,7 @@ pub fn render(app: &App, f: &mut Frame) {
     }
 }
 
-fn render_horizontal(app: &App, f: &mut Frame, area: Rect, p_width: u16, b_width: u16) {
+fn render_horizontal(app: &App, f: &mut Frame, area: Rect, p_width: u16, _b_width: u16) {
     let main_layout = Layout::horizontal([
         Constraint::Length(p_width + 2), // Portrait + tighter padding
         Constraint::Min(40),             // Content column
@@ -54,38 +65,77 @@ fn render_horizontal(app: &App, f: &mut Frame, area: Rect, p_width: u16, b_width
     // Render portrait in a rounded block
     render_portrait(f, left_col);
 
-    let right_chunks = Layout::vertical([
-        Constraint::Length(10),  // Logo (Reduced height for compactness)
-        Constraint::Min(5),      // Content (Dynamic switch)
-        Constraint::Length(3),   // Nav
-        Constraint::Length(1),   // Footer
-    ])
-    .split(right_col);
+    // Adjust layout based on whether command prompt is active
+    let has_prompt = app.mode == AppMode::Command;
+    let right_chunks = if has_prompt {
+        Layout::vertical([
+            Constraint::Length(10),  // Logo
+            Constraint::Min(5),      // Content
+            Constraint::Length(3),   // Nav
+            Constraint::Length(3),   // Command prompt
+            Constraint::Length(1),   // Footer
+        ])
+        .split(right_col)
+    } else {
+        Layout::vertical([
+            Constraint::Length(10),  // Logo
+            Constraint::Min(5),      // Content
+            Constraint::Length(3),   // Nav
+            Constraint::Length(1),   // Footer
+        ])
+        .split(right_col)
+    };
 
     render_logo(app, f, right_chunks[0]);
-    render_content(app, f, right_chunks[1]); // Switched from hardcoded render_bio
+    render_content(app, f, right_chunks[1]);
     render_tabs(app, f, right_chunks[2]);
-    render_footer(app, f, right_chunks[3]);
+
+    if has_prompt {
+        render_command_prompt(app, f, right_chunks[3]);
+        render_footer(app, f, right_chunks[4]);
+    } else {
+        render_footer(app, f, right_chunks[3]);
+    }
 }
 
 fn render_vertical(app: &App, f: &mut Frame, area: Rect) {
     let p_height = portrait_height();
     let l_height = banner_height();
 
-    let chunks = Layout::vertical([
-        Constraint::Max(p_height + 2),    // Portrait (Cap height in vertical mode)
-        Constraint::Length(l_height + 2), // Logo (Tighter padding)
-        Constraint::Min(10),              // Content
-        Constraint::Length(3),            // Nav
-        Constraint::Length(1),            // Footer
-    ])
-    .split(area);
+    let has_prompt = app.mode == AppMode::Command;
+
+    let chunks = if has_prompt {
+        Layout::vertical([
+            Constraint::Max(p_height + 2),    // Portrait
+            Constraint::Length(l_height + 2), // Logo
+            Constraint::Min(10),              // Content
+            Constraint::Length(3),            // Nav
+            Constraint::Length(3),            // Command prompt
+            Constraint::Length(1),            // Footer
+        ])
+        .split(area)
+    } else {
+        Layout::vertical([
+            Constraint::Max(p_height + 2),    // Portrait
+            Constraint::Length(l_height + 2), // Logo
+            Constraint::Min(10),              // Content
+            Constraint::Length(3),            // Nav
+            Constraint::Length(1),            // Footer
+        ])
+        .split(area)
+    };
 
     render_portrait(f, chunks[0]);
     render_logo(app, f, chunks[1]);
-    render_content(app, f, chunks[2]); // Switched from hardcoded render_bio
+    render_content(app, f, chunks[2]);
     render_tabs(app, f, chunks[3]);
-    render_footer(app, f, chunks[4]);
+
+    if has_prompt {
+        render_command_prompt(app, f, chunks[4]);
+        render_footer(app, f, chunks[5]);
+    } else {
+        render_footer(app, f, chunks[4]);
+    }
 }
 
 fn render_portrait(f: &mut Frame, area: Rect) {
@@ -93,17 +143,15 @@ fn render_portrait(f: &mut Frame, area: Rect) {
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
         .border_style(theme::BORDER)
-        .padding(Padding::new(0, 0, 0, 0)); // Zero internal padding for compactness
+        .padding(Padding::new(0, 0, 0, 0));
     
     let inner = block.inner(area);
     f.render_widget(block, area);
 
     let lines: Vec<Line> = content::PORTRAIT
         .iter()
-        .map(|&l| Line::from(Span::styled(l, theme::TEXT))) // Brighter style for better visibility
+        .map(|&l| Line::from(Span::styled(l, theme::TEXT)))
         .collect();
-    // Use no wrapping for portrait to keep ASCII art intact, 
-    // it will be truncated if area is too small
     let text = Paragraph::new(Text::from(lines))
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: false });
@@ -141,11 +189,9 @@ fn render_stars(app: &App, f: &mut Frame, area: Rect) {
     let star_count = 8;
 
     for i in 0..star_count {
-        // Deterministic but "random-looking" positions
         let seed = i * 137;
         let x_speed = (i % 3) + 1;
         
-        // Floating effect: horizontal drift + subtle vertical wobble
         let x = ((seed + tick / x_speed) % (area.width as usize)) as u16;
         let y_wobble = if (tick / 10 + i) % 2 == 0 { 1 } else { 0 };
         let y = ((seed / 7 + y_wobble) % (area.height as usize)) as u16;
@@ -178,7 +224,7 @@ fn render_bio(f: &mut Frame, area: Rect) {
 // ── Intro animation ────────────────────────────────────────────
 
 fn render_intro(app: &App, f: &mut Frame, area: Rect) {
-    let total = 500; // arbitrary total for intro
+    let total = 500;
     let chars_shown = match app.intro {
         IntroPhase::Typing { chars_shown } => chars_shown,
         IntroPhase::Pause { .. } | IntroPhase::Done => total,
@@ -186,8 +232,6 @@ fn render_intro(app: &App, f: &mut Frame, area: Rect) {
 
     let max_w = banner_width();
 
-    // Build the revealed portion of the banner.
-    // Pad each line to the same width so centering keeps alignment.
     let mut lines: Vec<Line> = Vec::new();
     let mut remaining = chars_shown;
 
@@ -198,23 +242,20 @@ fn render_intro(app: &App, f: &mut Frame, area: Rect) {
         let show = remaining.min(banner_line.len());
         let revealed = &banner_line[..show];
 
-        // Pad the revealed portion to max banner width
         let padded = format!("{:<width$}", revealed, width = max_w);
         let mut spans = vec![Span::styled(padded, theme::HEADER)];
 
-        // Show a blinking cursor at the end of the current typing line
         if show < banner_line.len() {
             spans.push(Span::styled("\u{2588}", theme::INTRO_CURSOR));
         }
 
         lines.push(Line::from(spans));
 
-        // consume chars + 1 for the implicit newline
         remaining = remaining.saturating_sub(banner_line.len() + 1);
     }
 
-    let banner_h = lines.len() as u16 + 2; // +2 for borders
-    let banner_w = (max_w as u16 + 4).min(area.width); // +4 for padding/borders
+    let banner_h = lines.len() as u16 + 2;
+    let banner_w = (max_w as u16 + 4).min(area.width);
 
     let x_offset = area.width.saturating_sub(banner_w) / 2;
     let y_offset = area.height.saturating_sub(banner_h) / 2;
@@ -252,9 +293,6 @@ fn banner_width() -> usize {
 fn render_header(f: &mut Frame, area: Rect) {
     let max_w = banner_width();
 
-    // Pad each banner line to the same width so Alignment::Center
-    // shifts them as a uniform block instead of centering each
-    // line independently (which breaks the ASCII art).
     let lines: Vec<Line> = content::BANNER
         .iter()
         .map(|&l| {
@@ -263,7 +301,6 @@ fn render_header(f: &mut Frame, area: Rect) {
         })
         .collect();
 
-    // Pad subtitle to the same width for consistent centering
     let subtitle_raw = "software engineer  \u{00b7}  France";
     let sub_pad_total = max_w.saturating_sub(subtitle_raw.chars().count());
     let sub_pad_left = sub_pad_total / 2;
@@ -349,7 +386,6 @@ fn render_about(app: &App, f: &mut Frame, area: Rect) {
 
     for (i, &line_str) in content::ABOUT_LINES.iter().enumerate() {
         if i == 0 {
-            // First line is the greeting — make it bold
             lines.push(Line::from(Span::styled(line_str, theme::TEXT_BOLD)));
         } else if line_str.is_empty() {
             lines.push(Line::from(""));
@@ -374,7 +410,6 @@ fn render_about(app: &App, f: &mut Frame, area: Rect) {
 // ── Projects tab (telescope-style split pane) ──────────────────
 
 fn render_projects(app: &App, f: &mut Frame, area: Rect) {
-    // Split into left (40%) and right (60%) panes
     let panes = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(40), Constraint::Percentage(60)])
@@ -402,7 +437,6 @@ fn render_project_list(app: &App, f: &mut Frame, area: Rect) {
             lines.push(Line::from(""));
         }
 
-        // Category header (non-selectable)
         lines.push(Line::from(Span::styled(cat.name, theme::CATEGORY_HEADER)));
 
         for project in cat.projects.iter() {
@@ -428,8 +462,6 @@ fn render_project_list(app: &App, f: &mut Frame, area: Rect) {
     let total_lines = lines.len();
     let viewport_h = inner.height as usize;
 
-    // Auto-scroll to keep the selected project visible.
-    // Find which line the selected project is on.
     let selected_line = find_selected_line_in_list(app.selected_project);
     let scroll_offset = compute_auto_scroll(selected_line, viewport_h, total_lines);
 
@@ -444,9 +476,9 @@ fn find_selected_line_in_list(selected: usize) -> usize {
 
     for (cat_idx, cat) in content::PROJECT_CATEGORIES.iter().enumerate() {
         if cat_idx > 0 {
-            line += 1; // blank separator
+            line += 1;
         }
-        line += 1; // category header
+        line += 1;
 
         for _ in cat.projects.iter() {
             if flat_idx == selected {
@@ -459,14 +491,11 @@ fn find_selected_line_in_list(selected: usize) -> usize {
     line
 }
 
-/// Compute a scroll offset that keeps `target_line` visible within the viewport,
-/// trying to center it when possible.
 fn compute_auto_scroll(target_line: usize, viewport_h: usize, total_lines: usize) -> usize {
     if total_lines <= viewport_h {
         return 0;
     }
     let max_scroll = total_lines.saturating_sub(viewport_h);
-    // Try to center the target line
     let ideal = target_line.saturating_sub(viewport_h / 2);
     ideal.min(max_scroll)
 }
@@ -484,13 +513,11 @@ fn render_project_detail(app: &App, f: &mut Frame, area: Rect) {
 
     let mut lines: Vec<Line> = Vec::new();
 
-    // Project name
     lines.push(Line::from(Span::styled(
         project.name,
         theme::PROJECT_DETAIL_NAME,
     )));
 
-    // Category
     lines.push(Line::from(Span::styled(
         category.name,
         theme::PROJECT_DETAIL_CATEGORY,
@@ -498,12 +525,10 @@ fn render_project_detail(app: &App, f: &mut Frame, area: Rect) {
 
     lines.push(Line::from(""));
 
-    // Description
     lines.push(Line::from(Span::styled(project.description, theme::TEXT)));
 
     lines.push(Line::from(""));
 
-    // Tech stack
     lines.push(Line::from(vec![
         Span::styled("Tech  ", theme::PROJECT_DETAIL_LABEL),
         Span::styled(project.tech, theme::TEXT_DIM),
@@ -511,7 +536,6 @@ fn render_project_detail(app: &App, f: &mut Frame, area: Rect) {
 
     lines.push(Line::from(""));
 
-    // URL
     lines.push(Line::from(vec![
         Span::styled("URL   ", theme::PROJECT_DETAIL_LABEL),
         Span::styled(project.url, theme::LINK),
@@ -587,19 +611,255 @@ fn render_contact(app: &App, f: &mut Frame, area: Rect) {
     }
 }
 
+// ── Command prompt ─────────────────────────────────────────────
+
+fn render_command_prompt(app: &App, f: &mut Frame, area: Rect) {
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .border_style(theme::BORDER)
+        .padding(Padding::new(1, 1, 0, 0));
+
+    let inner = block.inner(area);
+    f.render_widget(block, area);
+
+    let prompt_text = "redwan@ssh:~$ ";
+    let input_text = &app.command_input;
+
+    // Build the line with cursor
+    let before_cursor = &input_text[..app.command_cursor];
+    let cursor_char = if app.command_cursor < input_text.len() {
+        &input_text[app.command_cursor..app.command_cursor + 1]
+    } else {
+        " "
+    };
+    let after_cursor = if app.command_cursor < input_text.len() {
+        &input_text[app.command_cursor + 1..]
+    } else {
+        ""
+    };
+
+    let mut spans = vec![
+        Span::styled(prompt_text, theme::CMD_PROMPT),
+        Span::styled(before_cursor.to_string(), theme::CMD_INPUT),
+        Span::styled(cursor_char.to_string(), theme::CMD_CURSOR),
+    ];
+
+    if !after_cursor.is_empty() {
+        spans.push(Span::styled(after_cursor.to_string(), theme::CMD_INPUT));
+    }
+
+    // Show tab-completion hint
+    if !app.tab_completions.is_empty() && app.tab_completions.len() > 1 {
+        let hint = format!(
+            "  [{}/{}]",
+            app.tab_completion_index + 1,
+            app.tab_completions.len()
+        );
+        spans.push(Span::styled(hint, theme::CMD_HINT));
+    }
+
+    let line = Line::from(spans);
+    let paragraph = Paragraph::new(line);
+    f.render_widget(paragraph, inner);
+}
+
+// ── Typewriter output rendering ────────────────────────────────
+
+fn render_typewriter_output(app: &App, f: &mut Frame, area: Rect) {
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .border_style(theme::BORDER)
+        .title(" Output ")
+        .title_style(theme::CMD_PROMPT)
+        .padding(Padding::new(2, 2, 1, 1));
+
+    let inner = block.inner(area);
+    f.render_widget(block, area);
+
+    if inner.height < 2 {
+        return;
+    }
+
+    // Build revealed lines based on chars_shown
+    let mut lines: Vec<Line> = Vec::new();
+    let mut remaining = app.output_chars_shown;
+
+    for output_line in &app.output_lines {
+        if remaining == 0 {
+            break;
+        }
+
+        let show = remaining.min(output_line.text.len());
+        let revealed = &output_line.text[..show];
+
+        let style = match output_line.style {
+            OutputStyle::System => theme::OUTPUT_SYSTEM,
+            OutputStyle::Ok => theme::OUTPUT_OK,
+            OutputStyle::Data => theme::OUTPUT_DATA,
+            OutputStyle::Error => theme::OUTPUT_ERROR,
+            OutputStyle::Plain => theme::TEXT,
+            OutputStyle::Ascii => theme::OUTPUT_ASCII,
+            OutputStyle::Header => theme::OUTPUT_HEADER,
+        };
+
+        lines.push(Line::from(Span::styled(revealed.to_string(), style)));
+
+        // +1 for the implicit newline
+        remaining = remaining.saturating_sub(output_line.text.len() + 1);
+    }
+
+    // Add footer hint
+    if app.typewriter_done() {
+        lines.push(Line::from(""));
+        lines.push(Line::from(Span::styled(
+            "  [Enter/Esc] to return to prompt",
+            theme::CMD_HINT,
+        )));
+    }
+
+    let total_lines = lines.len();
+    let viewport_h = inner.height as usize;
+
+    // Auto-scroll to bottom during typewriter
+    let scroll_offset = if total_lines > viewport_h {
+        total_lines - viewport_h
+    } else {
+        0
+    };
+
+    let text = Paragraph::new(Text::from(lines))
+        .scroll((scroll_offset as u16, 0))
+        .wrap(Wrap { trim: false });
+    f.render_widget(text, inner);
+}
+
+// ── Snake game rendering ───────────────────────────────────────
+
+fn render_snake_fullscreen(app: &App, f: &mut Frame, area: Rect) {
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .border_style(theme::SNAKE_BORDER)
+        .title(" 🐍 Snake ")
+        .title_style(theme::SNAKE_SCORE)
+        .padding(Padding::new(1, 1, 0, 0));
+
+    let inner = block.inner(area);
+    f.render_widget(block, area);
+
+    if inner.height < 5 || inner.width < 10 {
+        return;
+    }
+
+    let Some(ref game) = app.snake_game else {
+        return;
+    };
+
+    // Score bar
+    let score_area = Rect {
+        x: inner.x,
+        y: inner.y,
+        width: inner.width,
+        height: 1,
+    };
+    let score_text = format!("  Score: {}  |  [Arrows/WASD] Move  |  [R] Restart  |  [Q] Quit", game.score);
+    f.render_widget(
+        Paragraph::new(Span::styled(score_text, theme::SNAKE_SCORE)),
+        score_area,
+    );
+
+    // Game area (below score bar)
+    let game_area = Rect {
+        x: inner.x,
+        y: inner.y + 2,
+        width: inner.width.min(game.width * 2), // 2 chars per cell for square-ish look
+        height: inner.height.saturating_sub(2).min(game.height),
+    };
+
+    // Draw game border
+    let game_block = Block::default()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .border_style(theme::SNAKE_BORDER);
+    let game_inner = game_block.inner(game_area);
+    f.render_widget(game_block, game_area);
+
+    // Draw food
+    let food_x = game_inner.x + (game.food.x as u16 * 2).min(game_inner.width.saturating_sub(2));
+    let food_y = game_inner.y + (game.food.y as u16).min(game_inner.height.saturating_sub(1));
+    if food_x < game_inner.x + game_inner.width && food_y < game_inner.y + game_inner.height {
+        let food_rect = Rect { x: food_x, y: food_y, width: 2, height: 1 };
+        f.render_widget(
+            Paragraph::new(Span::styled("██", theme::SNAKE_FOOD)),
+            food_rect,
+        );
+    }
+
+    // Draw snake
+    for (i, pos) in game.snake.iter().enumerate() {
+        let sx = game_inner.x + (pos.x as u16 * 2).min(game_inner.width.saturating_sub(2));
+        let sy = game_inner.y + (pos.y as u16).min(game_inner.height.saturating_sub(1));
+        if sx < game_inner.x + game_inner.width && sy < game_inner.y + game_inner.height {
+            let style = if i == 0 { theme::SNAKE_HEAD } else { theme::SNAKE_BODY };
+            let symbol = if i == 0 { "██" } else { "▓▓" };
+            let snake_rect = Rect { x: sx, y: sy, width: 2, height: 1 };
+            f.render_widget(
+                Paragraph::new(Span::styled(symbol, style)),
+                snake_rect,
+            );
+        }
+    }
+
+    // Game over overlay
+    if game.game_over {
+        let msg = format!("  GAME OVER!  Score: {}  |  [R] Restart  |  [Q] Quit  ", game.score);
+        let msg_w = msg.len() as u16;
+        let overlay_x = game_area.x + game_area.width.saturating_sub(msg_w) / 2;
+        let overlay_y = game_area.y + game_area.height / 2;
+        let overlay_area = Rect {
+            x: overlay_x,
+            y: overlay_y,
+            width: msg_w.min(game_area.width),
+            height: 1,
+        };
+        f.render_widget(
+            Paragraph::new(Span::styled(msg, theme::SNAKE_GAME_OVER)),
+            overlay_area,
+        );
+    }
+}
+
 // ── Footer ─────────────────────────────────────────────────────
 
-fn render_footer(_app: &App, f: &mut Frame, area: Rect) {
-    let spans = vec![
-        Span::styled("[", theme::TEXT_MUTED),
-        Span::styled("\u{2190} \u{2192} ", theme::KEY_HINT),
-        Span::styled("to select · ", theme::TEXT),
-        Span::styled("enter ", theme::KEY_HINT),
-        Span::styled("to open · ", theme::TEXT),
-        Span::styled("q ", theme::KEY_HINT),
-        Span::styled("to quit", theme::TEXT),
-        Span::styled("]", theme::TEXT_MUTED),
-    ];
+fn render_footer(app: &App, f: &mut Frame, area: Rect) {
+    let spans = match app.mode {
+        AppMode::Command => vec![
+            Span::styled("[", theme::TEXT_MUTED),
+            Span::styled("Tab ", theme::KEY_HINT),
+            Span::styled("complete · ", theme::TEXT),
+            Span::styled("↑↓ ", theme::KEY_HINT),
+            Span::styled("history · ", theme::TEXT),
+            Span::styled("Enter ", theme::KEY_HINT),
+            Span::styled("run · ", theme::TEXT),
+            Span::styled("Esc ", theme::KEY_HINT),
+            Span::styled("exit prompt", theme::TEXT),
+            Span::styled("]", theme::TEXT_MUTED),
+        ],
+        _ => vec![
+            Span::styled("[", theme::TEXT_MUTED),
+            Span::styled("← → ", theme::KEY_HINT),
+            Span::styled("tabs · ", theme::TEXT),
+            Span::styled("↑↓ ", theme::KEY_HINT),
+            Span::styled("scroll · ", theme::TEXT),
+            Span::styled(": ", theme::CMD_PROMPT),
+            Span::styled("command · ", theme::TEXT),
+            Span::styled("q ", theme::KEY_HINT),
+            Span::styled("quit", theme::TEXT),
+            Span::styled("]", theme::TEXT_MUTED),
+        ],
+    };
 
     let help = Paragraph::new(Line::from(spans)).alignment(Alignment::Left);
     f.render_widget(help, area);
@@ -619,7 +879,6 @@ fn render_scroll_indicator(
         return;
     }
 
-    // Show a small position indicator at the top-right of the content area
     let pct = if max_scroll > 0 {
         (offset * 100) / max_scroll
     } else {

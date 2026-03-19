@@ -64,3 +64,43 @@ pub const SCROLL_INDICATOR: Style = Style::new().fg(MUTED);
 pub const INTRO_CURSOR: Style = Style::new()
     .fg(FG)
     .add_modifier(Modifier::RAPID_BLINK);
+
+// ── Command prompt ─────────────────────────────────────────────
+pub const CMD_PROMPT: Style = Style::new()
+    .fg(Color::Rgb(0, 255, 136)) // Neon green prompt
+    .add_modifier(Modifier::BOLD);
+pub const CMD_INPUT: Style = Style::new().fg(FG);
+pub const CMD_CURSOR: Style = Style::new()
+    .fg(Color::Rgb(0, 255, 136))
+    .add_modifier(Modifier::RAPID_BLINK);
+pub const CMD_HINT: Style = Style::new().fg(MUTED);
+
+// ── Typewriter output styles ───────────────────────────────────
+pub const OUTPUT_SYSTEM: Style = Style::new().fg(ACCENT);
+pub const OUTPUT_OK: Style = Style::new()
+    .fg(Color::Rgb(0, 255, 136)) // Bright green
+    .add_modifier(Modifier::BOLD);
+pub const OUTPUT_DATA: Style = Style::new().fg(Color::Rgb(255, 200, 50)); // Amber/gold
+pub const OUTPUT_ERROR: Style = Style::new()
+    .fg(Color::Rgb(255, 80, 80)) // Soft red
+    .add_modifier(Modifier::BOLD);
+pub const OUTPUT_ASCII: Style = Style::new().fg(Color::Rgb(100, 120, 140)); // Steel blue-gray
+pub const OUTPUT_HEADER: Style = Style::new()
+    .fg(ACCENT)
+    .add_modifier(Modifier::BOLD);
+
+// ── Snake game ─────────────────────────────────────────────────
+pub const SNAKE_HEAD: Style = Style::new()
+    .fg(Color::Rgb(0, 255, 136))
+    .add_modifier(Modifier::BOLD);
+pub const SNAKE_BODY: Style = Style::new().fg(Color::Rgb(0, 200, 100));
+pub const SNAKE_FOOD: Style = Style::new()
+    .fg(Color::Rgb(255, 80, 80))
+    .add_modifier(Modifier::BOLD);
+pub const SNAKE_BORDER: Style = Style::new().fg(Color::Rgb(80, 80, 80));
+pub const SNAKE_SCORE: Style = Style::new()
+    .fg(Color::Rgb(255, 200, 50))
+    .add_modifier(Modifier::BOLD);
+pub const SNAKE_GAME_OVER: Style = Style::new()
+    .fg(Color::Rgb(255, 80, 80))
+    .add_modifier(Modifier::BOLD);

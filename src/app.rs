@@ -118,6 +118,10 @@ pub struct App {
     // ── Tab-completion ─────────────────────────────────────────
     pub tab_completions: Vec<String>,
     pub tab_completion_index: usize,
+
+    // ── Global layout state ────────────────────────────────────
+    pub terminal_width: u16,
+    pub terminal_height: u16,
 }
 
 /// List of all available commands for tab-completion and help.
@@ -162,6 +166,9 @@ impl App {
 
             tab_completions: Vec::new(),
             tab_completion_index: 0,
+
+            terminal_width: 80,
+            terminal_height: 24,
         }
     }
 
@@ -575,9 +582,32 @@ impl App {
 
     fn cmd_snake(&mut self) {
         self.mode = AppMode::SnakeGame;
-        // Default game area — will be resized by the renderer
-        self.snake_game = Some(SnakeGame::new(30, 15));
+        
+        // Calculate grid size based on terminal dimensions
+        // 2 chars per cell horizontally, 1 char vertically
+        // Reserved space: 2 lines for score, 2 lines for borders
+        let w = (self.terminal_width.saturating_sub(4) / 2).max(10);
+        let h = self.terminal_height.saturating_sub(6).max(5);
+        
+        self.snake_game = Some(SnakeGame::new(w, h));
         self.snake_tick_counter = 0;
+    }
+
+    pub fn resize_game(&mut self, width: u16, height: u16) {
+        self.terminal_width = width;
+        self.terminal_height = height;
+
+        if let Some(ref mut game) = self.snake_game {
+            if !game.game_over {
+                let w = (width.saturating_sub(4) / 2).max(10);
+                let h = height.saturating_sub(6).max(5);
+                
+                // If the new dimensions are significantly smaller, we might need a reset
+                // but for now we'll just update the boundaries
+                game.width = w;
+                game.height = h;
+            }
+        }
     }
 
     pub fn exit_snake(&mut self) {

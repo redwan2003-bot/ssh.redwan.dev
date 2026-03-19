@@ -66,17 +66,19 @@ impl SnakeGame {
     }
 
     /// Simple LCG pseudo-random number generator (no external crate needed).
-    fn next_rand(&mut self) -> u32 {
         self.seed = self.seed.wrapping_mul(1664525).wrapping_add(1013904223);
         self.seed
     }
 
     fn spawn_food(&mut self) {
+        let max_attempts = 100;
+        let mut attempts = 0;
         loop {
+            attempts += 1;
             let x = (self.next_rand() % self.width as u32) as i16;
             let y = (self.next_rand() % self.height as u32) as i16;
             let pos = Pos { x, y };
-            if !self.snake.contains(&pos) {
+            if !self.snake.contains(&pos) || attempts > max_attempts {
                 self.food = pos;
                 break;
             }

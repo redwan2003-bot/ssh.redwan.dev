@@ -251,8 +251,9 @@ impl Handler for AppServer {
 
         {
             let mut clients = self.clients.lock().await;
-            if let Some((terminal, _)) = clients.get_mut(&self.id) {
+            if let Some((terminal, app)) = clients.get_mut(&self.id) {
                 terminal.resize(rect)?;
+                app.resize_game(rect.width, rect.height);
             }
         }
 
@@ -285,8 +286,9 @@ impl Handler for AppServer {
 
         {
             let mut clients = self.clients.lock().await;
-            if let Some((terminal, _)) = clients.get_mut(&self.id) {
+            if let Some((terminal, app)) = clients.get_mut(&self.id) {
                 terminal.resize(rect)?;
+                app.resize_game(rect.width, rect.height);
             }
         }
 

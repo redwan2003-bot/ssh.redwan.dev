@@ -774,8 +774,8 @@ fn render_snake_fullscreen(app: &App, f: &mut Frame, area: Rect) {
     let game_area = Rect {
         x: inner.x,
         y: inner.y + 2,
-        width: inner.width.min(game.width * 2), // 2 chars per cell for square-ish look
-        height: inner.height.saturating_sub(2).min(game.height),
+        width: inner.width.min(game.width * 2 + 2),
+        height: inner.height.saturating_sub(2).min(game.height + 2),
     };
 
     // Draw game border
@@ -787,13 +787,12 @@ fn render_snake_fullscreen(app: &App, f: &mut Frame, area: Rect) {
     f.render_widget(game_block, game_area);
 
     // Draw food
-    let food_x = game_inner.x + (game.food.x as u16 * 2).min(game_inner.width.saturating_sub(2));
-    let food_y = game_inner.y + (game.food.y as u16).min(game_inner.height.saturating_sub(1));
-    if food_x < game_inner.x + game_inner.width && food_y < game_inner.y + game_inner.height {
-        let food_rect = Rect { x: food_x, y: food_y, width: 2, height: 1 };
+    let food_x = game_inner.x + (game.food.x as u16 * 2);
+    let food_y = game_inner.y + (game.food.y as u16);
+    if food_x + 1 < game_inner.x + game_inner.width && food_y < game_inner.y + game_inner.height {
         f.render_widget(
-            Paragraph::new(Span::styled("██", theme::SNAKE_FOOD)),
-            food_rect,
+            Paragraph::new(Span::styled("◆ ", Style::default().fg(theme::SNAKE_FOOD))),
+            Rect { x: food_x, y: food_y, width: 2, height: 1 },
         );
     }
 
